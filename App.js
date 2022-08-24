@@ -1,35 +1,41 @@
-import { StatusBar } from "expo-status-bar";
-import * as Location from "expo-location";
-import { StyleSheet, Text, View, ScrollView, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { useState, useEffect } from "react";
+import axios from "axios";
 const WINDOW_WIDTH = Dimensions.get("screen").width;
 export default function App() {
   const [city, setCity] = useState(null);
-  const [coordinate, setCoords] = useState(null);
-  const [ok, setOk] = useState(true);
-  const ask = async () => {
-    const { granted } = await Location.requestForegroundPermissionsAsync();
-    if (!granted) {
-      setOk(false);
+  const [weather, setWeather] = useState(null);
+  const getInfo = async () => {
+    try {
+      await axios(
+        "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=ecbc2a08cf96f70a2c0c35f2f84282f1&units=metric"
+      ).then((res) => {
+        setCity(res.data.city.name);
+        const weatherData = res.data.list.filter((data, index) => index < 5);
+        setWeather(weatherData);
+      });
+    } catch (e) {
+      console.log(e);
     }
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync();
-    setCoords({ latitude, longitude });
-    const location = await Location.reverseGeocodeAsync({
-      latitude,
-      longitude,
-    });
-    setCity(location[0].city);
   };
   useEffect(() => {
-    ask();
+    getInfo();
   }, []);
-  console.log(location);
   return (
     <View style={style.container}>
       <View style={style.city}>
-        <Text style={style.cityName}>{city}</Text>
+        {city ? (
+          <Text style={style.cityName}>{city}</Text>
+        ) : (
+          <ActivityIndicator size="large" />
+        )}
       </View>
       <ScrollView
         horizontal
@@ -37,22 +43,18 @@ export default function App() {
         contentContainerStyle={style.weather}
         showsHorizontalScrollIndicator={false}
       >
-        <View style={style.day}>
-          <Text style={style.temp}>27</Text>
-          <Text style={style.weatherName}>Sunny</Text>
-        </View>
-        <View style={style.day}>
-          <Text style={style.temp}>27</Text>
-          <Text style={style.weatherName}>Sunny</Text>
-        </View>
-        <View style={style.day}>
-          <Text style={style.temp}>27</Text>
-          <Text style={style.weatherName}>Sunny</Text>
-        </View>
-        <View style={style.day}>
-          <Text style={style.temp}>27</Text>
-          <Text style={style.weatherName}>Sunny</Text>
-        </View>
+        {weather ? (
+          weather.map((list, index) => (
+            <View key={index} style={style.day}>
+              <Text style={style.temp}>{parseInt(list.main.temp)}</Text>
+              <Text style={style.weatherName}>{list.weather[0].main}</Text>
+            </View>
+          ))
+        ) : (
+          <View style={style.day}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -68,7 +70,6 @@ const style = StyleSheet.create({
     fontSize: 50,
     color: "white",
   },
-  weather: {},
   day: {
     width: WINDOW_WIDTH,
     flex: 3,
