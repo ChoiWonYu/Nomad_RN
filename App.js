@@ -15,7 +15,7 @@ export default function App() {
   const getInfo = async () => {
     try {
       await axios(
-        "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=ecbc2a08cf96f70a2c0c35f2f84282f1&units=metric"
+        `http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=ecbc2a08cf96f70a2c0c35f2f84282f1&units=metric`
       ).then((res) => {
         setCity(res.data.city.name);
         const weatherData = res.data.list.filter((data, index) => index < 5);
