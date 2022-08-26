@@ -10,7 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 import { useState, useEffect } from "react";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons, FontAwesome } from "@expo/vector-icons";
 const TODO_KEY = "@todo_key";
 const TodoAPP = () => {
   const [working, setWorking] = useState(true);
@@ -110,10 +110,22 @@ const TodoAPP = () => {
         (key) =>
           todos[key].working === working && (
             <View key={key} style={styles.listBox}>
-              <Text style={styles.list}>{todos[key].text}</Text>
-              <TouchableOpacity onPress={() => onDelete(key)}>
-                <AntDesign name="delete" size={20} color={theme.bg} />
-              </TouchableOpacity>
+              <View style={styles.checkBox}>
+                <TouchableOpacity>
+                  <Ionicons name="checkmark-done" size={24} color="black" />
+                </TouchableOpacity>
+                <Text suppressHighlighting={true} style={styles.list}>
+                  {todos[key].text}
+                </Text>
+              </View>
+              <View style={styles.checkBox}>
+                <TouchableOpacity style={styles.renameIcon}>
+                  <FontAwesome name="pencil-square-o" size={24} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onDelete(key)}>
+                  <AntDesign name="delete" size={20} color={theme.bg} />
+                </TouchableOpacity>
+              </View>
             </View>
           )
       )}
@@ -160,6 +172,14 @@ const styles = StyleSheet.create({
   list: {
     color: "white",
     fontSize: 18,
+    marginLeft: 10,
+  },
+  checkBox: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  renameIcon: {
+    marginRight: 10,
   },
 });
 
